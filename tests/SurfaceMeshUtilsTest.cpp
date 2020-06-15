@@ -42,8 +42,8 @@ TEST_F(SurfaceMeshUtilsTest, getGeometryMatrixTest) {
     //判断数值
     Eigen::Matrix3Xf VTest(3, mesh_.n_vertices());
     VTest << 0, 0, 0, 1, 1, 1, 2, 2, 2,
-             0, 1, 2, 0, 1, 2, 0, 1, 2,
-             0, 0, 0, 0, 0, 0, 0, 0, 0;
+            0, 1, 2, 0, 1, 2, 0, 1, 2,
+            0, 0, 0, 0, 0, 0, 0, 0, 0;
     for (size_t r = 0; r < 3; r++) {
         for (size_t c = 0; c < mesh_.n_vertices(); c++) {
             ASSERT_FLOAT_EQ(V(r, c), VTest(r, c));
@@ -59,11 +59,20 @@ TEST_F(SurfaceMeshUtilsTest, getTopoMatrixTest) {
     //判断数值
     Eigen::Matrix3Xf FTest(3, mesh_.n_faces());
     FTest << 0, 1, 1, 2, 3, 4, 4, 5,
-             1, 4, 2, 5, 4, 7, 5, 8,
-             3, 3, 4, 4, 6, 6, 7, 7;
+            1, 4, 2, 5, 4, 7, 5, 8,
+            3, 3, 4, 4, 6, 6, 7, 7;
     for (size_t r = 0; r < 3; r++) {
         for (size_t c = 0; c < mesh_.n_faces(); c++) {
             ASSERT_FLOAT_EQ(F(r, c), FTest(r, c));
         }
+    }
+}
+
+TEST_F(SurfaceMeshUtilsTest, faceProperty2StdVectorTest) {
+    xry_mesh::computeAreas<Surface_Mesh::Scalar>(mesh_);
+    std::vector<Surface_Mesh::Scalar> areas = xry_mesh::faceProperty2StdVector<Surface_Mesh::Scalar>(mesh_, "f:areas");
+    //判断面积大小是否计算正确
+    for (const auto &area : areas) {
+        ASSERT_FLOAT_EQ(area, 0.5);
     }
 }

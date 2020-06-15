@@ -69,7 +69,39 @@ namespace xry_mesh {
     }
 
     Eigen::VectorXf PosEnergy::computeTi(const Eigen::VectorXf &d_i) {
-        assert(A_.outerSize() == dim * pos_constrains_.size());
+        //assert(A_.outerSize() == dim * pos_constrains_.size());
         return A_ * x_ + 1.0 / (1 + std::pow(mu_, 2)) * (d_i - A_ * x_);
+    }
+
+    const std::vector<std::pair<int, Eigen::VectorXf>> &PosEnergy::getPosConstrains() const {
+        return pos_constrains_;
+    }
+
+    void PosEnergy::setPosConstrains(const std::vector<std::pair<int, Eigen::VectorXf>> &posConstrains) {
+        pos_constrains_ = posConstrains;
+    }
+
+    size_t PosEnergy::getDim() const {
+        return dim;
+    }
+
+    void PosEnergy::setDim(size_t dim) {
+        PosEnergy::dim = dim;
+    }
+
+    bool PosEnergy::isEnableTi() const {
+        return enable_ti;
+    }
+
+    void PosEnergy::setEnableTi(bool enableTi) {
+        enable_ti = enableTi;
+    }
+
+    float PosEnergy::getMu() const {
+        return mu_;
+    }
+
+    void PosEnergy::setMu(float mu) {
+        mu_ = mu;
     }
 } // namespace xry_mesh

@@ -21,6 +21,22 @@ namespace xry_mesh {
 
         void update(const Eigen::VectorXf &x) override;
 
+        const std::vector<std::pair<int, Eigen::VectorXf>> &getPosConstrains() const;
+
+        void setPosConstrains(const std::vector<std::pair<int, Eigen::VectorXf>> &posConstrains);
+
+        size_t getDim() const;
+
+        void setDim(size_t dim);
+
+        bool isEnableTi() const;
+
+        void setEnableTi(bool enableTi);
+
+        float getMu() const;
+
+        void setMu(float mu);
+
     protected:
         void computeA() override;
 

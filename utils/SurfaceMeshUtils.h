@@ -75,9 +75,24 @@ namespace xry_mesh {
         for (auto f : mesh.faces()) {
             areas[f] = computeArea<Scalar>(mesh, f);
         }
-//        for (const auto &f : mesh.faces()) {
-//            dbg(areas[f]);
-//        }
+    }
+
+    /**
+     * 将SurfaceMesh中的face_property转换为std::vector形式
+     * @tparam T
+     * @param mesh
+     * @param name
+     * @return
+     */
+    template <class T>
+    std::vector<T> faceProperty2StdVector(Surface_Mesh::SurfaceMesh &mesh, const std::string &name) {
+        std::vector<T> res;
+        res.reserve(mesh.n_faces());
+        auto property = mesh.get_face_property<T>(name);
+        for (const auto &f : mesh.faces()) {
+            res.push_back(property[f]);
+        }
+        return res;
     }
 
     /**
