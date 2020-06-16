@@ -29,7 +29,6 @@ namespace xry_mesh {
             for (size_t j = 0; j < 2; j++) {
                 m.col(j) = (V.col(F_(j + 1, i)) - V.col(F_(0, i)));
             }
-            dbg(m);
             error += ideal_areas_[i] * (m * inv_deltas_[i] - vec_R_[i]).squaredNorm();
         }
         return error;
@@ -72,32 +71,26 @@ namespace xry_mesh {
     }
 
     void ARAPEnergy::optimizeRotation(const Eigen::Matrix2f &J, Eigen::Matrix2f &R) {
-        Eigen::JacobiSVD<Eigen::Matrix2f> svd(J, Eigen::ComputeFullU | Eigen::ComputeFullV);
-        R = svd.matrixU() * svd.matrixV().transpose();
-
-        if (R.determinant() < 0) {
-            Eigen::Matrix2f svdV = svd.matrixV();
-            svdV.col(0) = -svdV.col(0);
-            R = svd.matrixU() * svdV.transpose();
-        }
-        if (enable_dbg) {
-            dbg(svd.singularValues());
-            dbg(J);
-            dbg(R);
+        const Eigen::Vector2d data(J(0, 0) + J(1, 1), J(0, 1) - J(1, 0));
+        R << data[0], data[1], -data[1], data[0];
+        const double r = data.norm();
+        if (r < 1e-6) {
+            R.setIdentity();
+        } else {
+            R /= r;
         }
     }
 
     Eigen::Matrix<float, 2, 3>
     ARAPEnergy::flattenTriangle(const Eigen::Vector2f &p1, const Eigen::Vector2f &p2, const Eigen::Vector2f &p3) {
-        const float aa = (p2 - p1).squaredNorm();
-        const float bb = (p3 - p2).squaredNorm();
-        const float cc = (p1 - p3).squaredNorm();
+        const double aa = (p2 - p1).squaredNorm();
+        const double bb = (p3 - p2).squaredNorm();
+        const double cc = (p1 - p3).squaredNorm();
 
-        const float a = std::sqrt(aa);
-        const float c = std::sqrt(cc);
-        assert(a != 0 && c != 0);
-        assert((aa + cc - bb) / (2 * a * c) >= -1 && (aa + cc - bb) / (2 * a * c) <= 1);
-        const float angle = std::acos((aa + cc - bb) / (2 * a * c));
+        const double a = std::sqrt(aa);
+        const double c = std::sqrt(cc);
+
+        const double angle = std::acos((aa + cc - bb) / (2 * a * c));
 
         Eigen::Matrix<float, 2, 3> p2d;
         p2d << 0, a, c * std::cos(angle),
@@ -105,12 +98,20 @@ namespace xry_mesh {
         return p2d;
     }
 
+    Eigen::Matrix<float, 2, 3>
+    ARAPEnergy::useOriginalTriangles(const Eigen::Vector2f &p1, const Eigen::Vector2f &p2, const Eigen::Vector2f &p3) {
+        Eigen::Matrix<float, 2, 3> p2d;
+        p2d << p1.x(), p2.x(), p3.x(),
+                p1.y(), p2.y(), p3.y();
+        return p2d;
+    }
+
     void ARAPEnergy::computeIdeals() {
         ideal_elems_.clear();
         for (size_t i = 0; i < F_.cols(); i++) {
-            Eigen::Matrix<float, 2, 3> ideal = flattenTriangle(V_.col(F_(0, i)),
-                                                               V_.col(F_(1, i)),
-                                                               V_.col(F_(2, i)));
+            Eigen::Matrix<float, 2, 3> ideal = useOriginalTriangles(V_.col(F_(0, i)),
+                                                                    V_.col(F_(1, i)),
+                                                                    V_.col(F_(2, i)));
             ideal_elems_.emplace_back(ideal);
         }
     }
@@ -140,7 +141,7 @@ namespace xry_mesh {
     void ARAPEnergy::recomposeRi(Eigen::VectorXf &R, size_t i) {
         for (size_t r = 0; r < 2; r++) {
             for (size_t c = 0; c < 2; c++) {
-                R[4 * i + 2 * r + c] = sqrt(ideal_areas_[i]) * vec_R_[i](r, c);
+                R[4 * i + 2 * r + c] = sqrt(ideal_areas_[i]) * vec_R_[i](c, r);
             }
         }
     }

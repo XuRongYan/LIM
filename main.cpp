@@ -6,6 +6,12 @@
 #include <SurfaceMesh/IO.h>
 #include <dbg.h>
 
+#include "utils/FileIOUtils.h"
+#include "utils/SurfaceMeshUtils.h"
+#include "utils/EigenUtils.h"
+#include "solver/LGSolver.h"
+#include "arap.h"
+
 namespace po = boost::program_options;
 
 namespace LIM_para {
@@ -57,21 +63,21 @@ int main(int argc, char *argv[]) {
         args.t = std::stof(vm["t"].as<std::string>());
     }
     dbg(args.base_mesh);
-//    Surface_Mesh::SurfaceMesh mesh;
-//    Surface_Mesh::read_obj(mesh, args.base_mesh);
-//    dbg(args.base_mesh, mesh.n_vertices(), mesh.n_faces(), mesh.n_edges());
-//    std::vector<std::pair<int, Eigen::Vector3f>> pos_constrain = xry_mesh::readPosFile<float>(argv[2]);
-//    dbg(pos_constrain.size());
-//    LIMEnergy<Surface_Mesh::Scalar> limEnergy(mesh, pos_constrain);
-//    limEnergy.setParameters(args.alpha, args.beta, args.mu_max, args.sigma_max, args.r, args.t, args.s_j);
-//    limEnergy.precompute();
-//    dbg("初始化LIM能量.....");
-//    //dbg(limEnergy);
-//    LIMOptimizer<Surface_Mesh::Scalar> optimizer(limEnergy, 100);
-//    auto V_2d = optimizer.solve();
-//    Eigen::MatrixX2f V2 = xry_mesh::v2vt<float>(V_2d, 2);
-//    auto V = xry_mesh::v2dTo3d<float>(V2.transpose());
-//    xry_mesh::rebuildMesh<float>(mesh, V);
-//    Surface_Mesh::write_obj(mesh, "result.obj");
+    Surface_Mesh::SurfaceMesh mesh;
+    Surface_Mesh::read_obj(mesh, args.base_mesh);
+    dbg(args.base_mesh, mesh.n_vertices(), mesh.n_faces(), mesh.n_edges());
+    std::vector<std::pair<size_t , Eigen::Vector2d>> pos_constrain = xry_mesh::readPosFile2D<double>(argv[2], 2);
+    std::vector<std::pair<int , Eigen::VectorXf>> pos_constrain1 = xry_mesh::readPosFile<float>(argv[2], 2);
+    Eigen::Matrix2Xd Vout;
+    Eigen::Matrix3Xd V3d = xry_mesh::getGeometryMatrix<double>(mesh);
+    auto V_ = V3d.block(0, 0, 2, V3d.cols());
+    auto F_ = xry_mesh::getTopoMatrix(mesh);
+    //jy_mesh::arap_deformation(V_, F_, pos_constrain, Vout, 100);
+    LGSolver solver(mesh, pos_constrain1, 100);
+    solver.init();
+    auto x = solver.solve();
+    auto v2d = Eigen::Map<Eigen::Matrix2Xf>(x.data(), 2, x.size() / 2);
+    xry_mesh::rebuild2DMesh<float>(mesh, v2d);
+    Surface_Mesh::write_obj(mesh, "result2D.obj");
     return 0;
 }

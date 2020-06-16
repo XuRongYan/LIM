@@ -82,6 +82,12 @@ namespace xry_mesh {
                                                     const Eigen::Vector2f &p3);
 
         /**
+         * 原网格的三角形直接作为ideal
+         * @return
+         */
+        Eigen::Matrix<float, 2, 3> useOriginalTriangles(const Eigen::Vector2f &p1, const Eigen::Vector2f &p2, const Eigen::Vector2f &p3);
+
+        /**
          * 计算梯度算子矩阵
          * @return
          */

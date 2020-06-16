@@ -37,6 +37,28 @@ namespace xry_mesh {
         ifs.close();
         return res;
     }
+
+    template<typename Scalar>
+    std::vector<std::pair<size_t , Eigen::Matrix<Scalar, 2, 1>>> readPosFile2D(const std::string &filename, int dim = 2) {
+        assert(dim == 2);
+        std::vector<std::pair<size_t , Eigen::Matrix<Scalar, 2, 1>>> res;
+        std::ifstream ifs(filename);
+        if (ifs.fail()) {
+            dbg("can not open", filename);
+            return res;
+        }
+        int id;
+        Scalar x, y, z;
+        while (ifs >> id >> x >> y >> z) {
+            Eigen::Matrix<Scalar, Eigen::Dynamic, 1> point(dim, 1);
+            point(0, 0) = x;
+            point(1, 0) = y;
+            //if (dim == 3) point(2, 0) = z;
+            res.emplace_back(id, point);
+        }
+        ifs.close();
+        return res;
+    }
 } // namespace xry_mesh
 
 

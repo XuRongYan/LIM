@@ -36,7 +36,7 @@ namespace xry_mesh {
         void setX(const Eigen::VectorXf &x);
 
     protected:
-        const static bool enable_dbg = true;
+        const static bool enable_dbg = false;
         Eigen::VectorXf x_;                 //求解变量（固定为列向量）
     };
 } // namespace xry_mesh

@@ -20,10 +20,19 @@ namespace xry_mesh {
      * @param V
      */
     template<typename Scalar>
-    void rebuildMesh(Surface_Mesh::SurfaceMesh &mesh, const Eigen::Matrix<Scalar, 3, Eigen::Dynamic> &V) {
+    void rebuild3DMesh(Surface_Mesh::SurfaceMesh &mesh, const Eigen::Matrix<Scalar, 3, Eigen::Dynamic> &V) {
         size_t idx = 0;
         for (auto &p : mesh.points()) {
             p = V.col(idx++);
+        }
+    }
+
+    template<typename Scalar>
+    void rebuild2DMesh(Surface_Mesh::SurfaceMesh &mesh, const Eigen::Matrix<Scalar, 2, Eigen::Dynamic> &V) {
+        size_t idx = 0;
+        for (auto &p : mesh.points()) {
+            Eigen::Matrix<Scalar, 2, 1> p2d = V.col(idx++);
+            p = Surface_Mesh::Point(p2d(0, 0), p2d(1, 0), 0);
         }
     }
 
