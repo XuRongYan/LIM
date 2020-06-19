@@ -30,7 +30,8 @@ namespace xry_mesh {
     }
 
     Eigen::SparseMatrix<float> NormEnergy::hessian() const {
-        return Eigen::SparseMatrix<float>();
+        Eigen::SparseMatrix<float> At = A_.transpose();
+        return 2 * At * A_;
     }
 
     const Eigen::SparseMatrix<float> &NormEnergy::getA() const {

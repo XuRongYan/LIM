@@ -41,4 +41,4 @@ if (MSVC)
 endif (MSVC)
 
 target_link_libraries(${PROJECT_NAME} ${LIB_SURFACE_MESH} ${BOOST_FILESYSTEM} ${BOOST_PROGRAM_OPTIONS} ${OPENMP})
-target_link_libraries(test_main ${GTEST_MAIN_LIBRARY} ${GTEST_LIBRARY} ${LIB_SURFACE_MESH})
+target_link_libraries(test_main ${GTEST_MAIN_LIBRARY} ${GTEST_LIBRARY} ${LIB_SURFACE_MESH} ${OPENMP})

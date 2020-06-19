@@ -19,7 +19,7 @@ namespace xry_mesh {
 
         float value() override;
 
-        float value(const Eigen::VectorXf &x) override;
+        virtual float value(const Eigen::VectorXf &x) override;
 
         void init() override;
 

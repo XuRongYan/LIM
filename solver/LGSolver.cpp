@@ -63,5 +63,9 @@ void LGSolver::subSolve() {
 }
 
 float LGSolver::computeError() {
-    return arap_energy_.value();
+    const float arap_error = arap_energy_.value();
+    dbg(arap_error);
+    const float pos_error = pos_energy_.value();
+    dbg(pos_error);
+    return arap_error + pos_error;
 }

@@ -46,5 +46,5 @@ TEST_F(ARAPEnergyTest, rotateMatrixTest) {
 TEST_F(ARAPEnergyTest, valueTest) {
     // TODO 完善测试
     float val = arapEnergy.value();
-    ASSERT_FLOAT_EQ(val, 16);
+    ASSERT_FLOAT_EQ(val, 0);
 }

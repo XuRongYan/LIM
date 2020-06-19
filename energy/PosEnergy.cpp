@@ -17,6 +17,18 @@ namespace xry_mesh {
         }
     }
 
+    float PosEnergy::value() {
+        return NormEnergy::value();
+    }
+
+    float PosEnergy::value(const Eigen::VectorXf &x) {
+        Eigen::VectorXf b = computeDi();
+        if (enable_ti) {
+            b = computeTi(b, x);
+        }
+        return (A_ * x - b).squaredNorm();
+    }
+
     void PosEnergy::computeA() {
         A_.resize(x_.size(), x_.size());
         std::vector<Eigen::Triplet<float>> triplets;
@@ -37,13 +49,13 @@ namespace xry_mesh {
             b_ = computeTi(b_);
         }
         if (enable_dbg) {
-
             dbg(b_);
         }
     }
 
     void PosEnergy::update(const Eigen::VectorXf &x) {
-        NormEnergy::update(x);
+        x_ = x;
+        computeB();
     }
 
     PosEnergy::PosEnergy(const Eigen::VectorXf &x,
@@ -71,6 +83,18 @@ namespace xry_mesh {
     Eigen::VectorXf PosEnergy::computeTi(const Eigen::VectorXf &d_i) {
         //assert(A_.outerSize() == dim * pos_constrains_.size());
         return A_ * x_ + 1.0 / (1 + std::pow(mu_, 2)) * (d_i - A_ * x_);
+    }
+
+    Eigen::VectorXf PosEnergy::computeTi(const Eigen::VectorXf &d_i, const Eigen::VectorXf &x) {
+        return A_ * x + 1.0 / (1 + std::pow(mu_, 2)) * (d_i - A_ * x);
+    }
+
+    Eigen::VectorXf PosEnergy::computeB(const Eigen::VectorXf &x) {
+        auto b = computeDi();
+        if (enable_ti) {
+            b = computeTi(b_, x);
+        }
+        return b;
     }
 
     const std::vector<std::pair<int, Eigen::VectorXf>> &PosEnergy::getPosConstrains() const {
@@ -104,4 +128,6 @@ namespace xry_mesh {
     void PosEnergy::setMu(float mu) {
         mu_ = mu;
     }
+
+
 } // namespace xry_mesh

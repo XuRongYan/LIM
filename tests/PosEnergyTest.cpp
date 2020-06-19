@@ -19,7 +19,7 @@ protected:
         Eigen::MatrixX2f v2d = V.transpose().block(0, 0, V.cols(), 2);
         Eigen::VectorXf x = xry_mesh::vt2v<float>(v2d);
         std::vector<std::pair<int, Eigen::VectorXf>> pos_constrains
-                = xry_mesh::readPosFile2D<float>("pos_2_2.pts", 2);
+                = xry_mesh::readPosFile<float>("pos_2_2.pts", 2);
         posEnergy = xry_mesh::PosEnergy(x, 2, pos_constrains, 0);
         posEnergy.setEnableTi(true);
         posEnergy.init();

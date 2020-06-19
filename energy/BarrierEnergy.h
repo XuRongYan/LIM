@@ -16,7 +16,10 @@ namespace xry_mesh {
     public:
         BarrierEnergy();
 
-        BarrierEnergy(const Eigen::VectorXf &x, const Eigen::Matrix2Xf &v, const Eigen::Matrix3Xi &f);
+        BarrierEnergy(const Eigen::VectorXf &x,
+                      const Eigen::Matrix2Xf &v,
+                      const Eigen::Matrix3Xi &f,
+                      const std::vector<float> &areas);
 
         float value() override;
 
@@ -30,14 +33,18 @@ namespace xry_mesh {
 
         void update(const Eigen::VectorXf &x) override;
 
+        float getSJ() const;
+
+        void setSJ(float sJ);
+
     private:
-        float s_j_ = 1.0;
+        float s_j_{1.0};
         float epsilon_;
         Eigen::Matrix2Xf V_;
         Eigen::Matrix3Xi F_;
         Eigen::Matrix<int, 6, Eigen::Dynamic> triangle_vertex_idx_;
         std::vector<float> weight1, weight2;
-        std::vector<float> areas;
+        std::vector<float> areas_;
 
         /**
          * 计算每个三角形三个顶点对应求解矩阵的位置
@@ -60,13 +67,18 @@ namespace xry_mesh {
         void computeW2();
 
         /**
+         * 更新三角形面积
+         */
+        void updateAreas();
+
+        /**
         * 分段函数phi，具体见论文
         * @param x
         * @return
         */
         inline float phi(float x) {
             if (x <= 0) return std::numeric_limits<float>::infinity();
-            else if (x > 0 && x < s_j_) return 1.0 / g(x) - 1;
+            else if (x > 0 && x < s_j_) return 1.0f / g(x) - 1;
             else return 0;
         }
 
@@ -75,8 +87,8 @@ namespace xry_mesh {
          * @return
          */
         inline float g(float x) const {
-            return 1.0 / std::pow(s_j_, 3) * std::pow(x, 3)
-                   + 3.0 / std::pow(s_j_, 2) * std::pow(x, 2)
+            return 1.0f / std::pow(s_j_, 3) * std::pow(x, 3)
+                   - 3.0 / std::pow(s_j_, 2) * std::pow(x, 2)
                    + 3.0 / s_j_ * x;
         }
 
@@ -85,8 +97,8 @@ namespace xry_mesh {
         * @return
         */
         inline float gPrime(float x) const {
-            return 3.0 / std::pow(s_j_, 3) * std::pow(x, 2)
-                   + 6.0 / std::pow(s_j_, 2) * x
+            return 3.0f / std::pow(s_j_, 3) * std::pow(x, 2)
+                   - 6.0 / std::pow(s_j_, 2) * x
                    + 3.0 / s_j_;
         }
 
@@ -97,7 +109,7 @@ namespace xry_mesh {
         */
         inline float gPrime2(float x) const {
             return 6.0 / std::pow(s_j_, 3) * x
-                   + 6.0 / std::pow(s_j_, 2);
+                   - 6.0 / std::pow(s_j_, 2);
         }
 
         /**
@@ -107,10 +119,20 @@ namespace xry_mesh {
         * @param p3
         * @return
         */
-        inline float c(const Surface_Mesh::Point &p1,
-                       const Surface_Mesh::Point &p2,
-                       const Surface_Mesh::Point &p3) const {
-            return xry_mesh::computeArea<float>(p1, p2, p3) - epsilon_;
+        inline float c(const Eigen::Vector2f &p1,
+                       const Eigen::Vector2f &p2,
+                       const Eigen::Vector2f &p3) const {
+            return xry_mesh::computeArea2D<float>(p1, p2, p3) - epsilon_;
+        };
+
+        /**
+        * 面积约束函数c（根据face id来计算）
+        * @param f_idx 面片id
+        * @return
+        */
+        inline float c(size_t f_idx) const {
+            assert(f_idx < areas_.size());
+            return areas_[f_idx] - epsilon_;
         };
 
     };

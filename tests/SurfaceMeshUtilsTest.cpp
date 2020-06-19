@@ -32,6 +32,12 @@ TEST_F(SurfaceMeshUtilsTest, computeAreaTest) {
     for (const auto &f : mesh_.faces()) {
         ASSERT_FLOAT_EQ(areas[f], 0.5);
     }
+
+    Eigen::Vector2f p1, p2, p3;
+    p1 << 0, 0;
+    p2 << 1, 0;
+    p3 << 0, 1;
+    ASSERT_EQ(xry_mesh::computeArea2D(p1, p2, p3), 0.5);
 }
 
 TEST_F(SurfaceMeshUtilsTest, getGeometryMatrixTest) {
@@ -74,5 +80,17 @@ TEST_F(SurfaceMeshUtilsTest, faceProperty2StdVectorTest) {
     //判断面积大小是否计算正确
     for (const auto &area : areas) {
         ASSERT_FLOAT_EQ(area, 0.5);
+    }
+}
+
+TEST_F(SurfaceMeshUtilsTest, ensurePositiveAreasTest) {
+    xry_mesh::ensurePositiveAreas(mesh_);
+    Surface_Mesh::write_obj(mesh_, "ensure_positive_test.obj");
+    for (const auto &f : mesh_.faces()) {
+        std::vector<Surface_Mesh::Point> points;
+        for (auto v : mesh_.vertices(f)) {
+            points.emplace_back(mesh_.position(v));
+        }
+        ASSERT_TRUE(xry_mesh::computeAreaDet(points[0], points[1], points[2]) > 0);
     }
 }
