@@ -65,8 +65,8 @@ TEST_F(SurfaceMeshUtilsTest, getTopoMatrixTest) {
     //判断数值
     Eigen::Matrix3Xf FTest(3, mesh_.n_faces());
     FTest << 0, 1, 1, 2, 3, 4, 4, 5,
-            1, 4, 2, 5, 4, 7, 5, 8,
-            3, 3, 4, 4, 6, 6, 7, 7;
+            3, 3, 4, 4, 6, 6, 7, 7,
+            1, 4, 2, 5, 4, 7, 5, 8;
     for (size_t r = 0; r < 3; r++) {
         for (size_t c = 0; c < mesh_.n_faces(); c++) {
             ASSERT_FLOAT_EQ(F(r, c), FTest(r, c));

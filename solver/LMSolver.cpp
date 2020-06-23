@@ -3,6 +3,7 @@
 //
 
 #include "LMSolver.h"
+#include "../utils/NumericalDiffUtils.h"
 
 LMSolver::LMSolver() {}
 
@@ -47,13 +48,13 @@ Eigen::VectorXf LMSolver::solve() {
 }
 
 Eigen::VectorXf LMSolver::subSolve() {
-    J_ = lim_energy_.jacobian();
-    H_ = lim_energy_.hessian();
+
     if (enable_mu_search_) {
         mu_ = lineSearchMu(mu_);
         dbg(mu_);
         lim_energy_.setMu(mu_);
     }
+
 
     Eigen::VectorXf p_i;
     p_i = solvePi(p_i);
@@ -65,7 +66,9 @@ Eigen::VectorXf LMSolver::subSolve() {
 
     auto x_i = x_ - sigma_ * p_i;
     lim_energy_.update(x_i);
-
+    J_ = lim_energy_.jacobian();
+    H_ = lim_energy_.hessian();
+    //compareNumerical(x_, x_i);
     return x_i;
 }
 
@@ -85,17 +88,15 @@ float LMSolver::lineSearchSigma(const Eigen::VectorXf &p_i, float sigma_i) {
     if (lim_energy_.value(V_i) >= lim_energy_.value(x_)) {
         dbg("energy increase");
         while (lim_energy_.value(V_i) >= lim_energy_.value(x_) && sigma_i > 1e-6 && sigma_i <= sigma_max_) {
-
             sigma_i *= 0.5;
+            V_i = x_ - sigma_i * p_i;
         }
-        if (sigma_i < 1e-6) sigma_i = 0;
-        sigma_i *= 2;
     } else {
         dbg("energy decrease");
-        while (lim_energy_.value(V_i) < lim_energy_.value(x_) && sigma_i <= sigma_max_ && sigma_i > 1e-6) {
+        while (lim_energy_.value(V_i) < lim_energy_.value(x_) && sigma_i <= 0.5 * sigma_max_ && sigma_i > 1e-6) {
             sigma_i *= 2;
+            V_i = x_ - sigma_i * p_i;
         }
-        sigma_i *= 0.5;
     }
     return sigma_i;
 }
@@ -110,21 +111,37 @@ float LMSolver::lineSearchMu(float mu_i) {
         dbg("matrix invertible");
         while (xry_mesh::isSparseMatrixInvertible(matrix) && mu_i > 1e-6 && mu_i <= mu_max_) {
             mu_i *= 0.5;
+            matrix = H_ + mu_i * I;
         }
-        if (mu_i < 1e-6) mu_i = 0;
-        mu_i *= 2;
     } else {
         dbg("matrix not invertible");
-        while (!xry_mesh::isSparseMatrixInvertible(matrix) && mu_i <= mu_max_ && mu_i > 1e-6) {
+        while (!xry_mesh::isSparseMatrixInvertible(matrix) && mu_i <= 0.5 * mu_max_ && mu_i > 1e-6) {
             mu_i *= 2;
+            matrix = H_ + mu_i * I;
         }
-        mu_i *= 0.5;
     }
     return mu_i;
 }
 
 float LMSolver::computeError() {
     return lim_energy_.value();
+}
+
+void LMSolver::compareNumerical(const Eigen::VectorXf &x,
+                                const Eigen::VectorXf &x_i) {
+    const float val0 = lim_energy_.value(x);
+    const float eps = 1e-3;
+    Eigen::VectorXf f_i(x.size());
+    for (size_t i = 0; i < x.size(); i++) {
+        Eigen::VectorXf tmp_x_i = x;
+        tmp_x_i[i] += eps;
+        const float val_i = lim_energy_.value(tmp_x_i);
+        f_i[i] = val_i;
+    }
+    Eigen::VectorXf J_num = xry_mesh::numericalGrad(f_i, val0, eps);
+    //dbg(J_num);
+    //dbg(J_);
+    dbg((J_num - J_).squaredNorm());
 }
 
 void LMSolver::setParameters(float alpha, float beta, float sigma_max, float mu_max, float r, float t, float s_j) {

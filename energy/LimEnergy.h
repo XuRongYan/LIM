@@ -9,6 +9,7 @@
 #include "ARAPEnergy.h"
 #include "PosEnergy.h"
 #include "BarrierEnergy.h"
+#include "../../../../../../usr/local/Cellar/eigen/3.3.7/include/eigen3/Eigen/src/Core/Matrix.h"
 
 
 namespace xry_mesh {
@@ -27,7 +28,9 @@ namespace xry_mesh {
 
         Eigen::VectorXf jacobian() const override;
 
-        Eigen::SparseMatrix<float> hessian() const override;
+		Eigen::VectorXf numericalJacobian(float esp) override;
+
+		Eigen::SparseMatrix<float> hessian() const override;
 
         void update(const Eigen::VectorXf &x) override;
 
@@ -84,8 +87,8 @@ namespace xry_mesh {
         void setSJ(float sJ);
 
     private:
-        bool enable_barrier_func_ = false;
-        bool enable_update_alpha_ = false;
+        bool enable_barrier_func_ = true;
+        bool enable_update_alpha_ = true;
         float alpha_{1e8};
         float beta_{0.1};
         float sigma_max_{1.0};

@@ -37,3 +37,11 @@ TEST_F(PosEnergyTest, PosValueTest) {
     ASSERT_EQ(v, posEnergy.getX());
     ASSERT_FLOAT_EQ(0, value);
 }
+
+TEST_F(PosEnergyTest, numericalJacobianTest) {
+	Eigen::VectorXf J = posEnergy.jacobian();
+	Eigen::VectorXf J_num = posEnergy.numericalJacobian(1e-6);
+	const float err = (J - J_num).squaredNorm();
+	dbg(err);
+	ASSERT_TRUE(err < 1e-5);
+}

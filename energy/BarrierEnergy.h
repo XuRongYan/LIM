@@ -29,6 +29,8 @@ namespace xry_mesh {
 
         Eigen::VectorXf jacobian() const override;
 
+        std::vector<Eigen::VectorXf> lambdaJacobian() const;
+
         Eigen::SparseMatrix<float> hessian() const override;
 
         void update(const Eigen::VectorXf &x) override;
@@ -37,39 +39,13 @@ namespace xry_mesh {
 
         void setSJ(float sJ);
 
-    private:
-        float s_j_{1.0};
-        float epsilon_;
-        Eigen::Matrix2Xf V_;
-        Eigen::Matrix3Xi F_;
-        Eigen::Matrix<int, 6, Eigen::Dynamic> triangle_vertex_idx_;
-        std::vector<float> weight1, weight2;
-        std::vector<float> areas_;
+        const std::vector<float> &getWeight1() const;
 
-        /**
-         * 计算每个三角形三个顶点对应求解矩阵的位置
-         */
-        void computeVertexIdxMatrix();
+        const std::vector<float> &getWeight2() const;
 
-        /**
-         * 计算epsilon，具体见论文
-         */
-        void computeEpsilon();
+        const std::vector<float> &getAreas() const;
 
-        /**
-         * 计算其中一个权值，见论文
-         */
-        void computeW1();
-
-        /**
-         * 计算其中一个权值，见论文
-         */
-        void computeW2();
-
-        /**
-         * 更新三角形面积
-         */
-        void updateAreas();
+        const Eigen::Matrix<int, 6, Eigen::Dynamic> &getTriangleVertexIdx() const;
 
         /**
         * 分段函数phi，具体见论文
@@ -78,7 +54,7 @@ namespace xry_mesh {
         */
         inline float phi(float x) {
             if (x <= 0) return std::numeric_limits<float>::infinity();
-            else if (x > 0 && x < s_j_) return 1.0f / g(x) - 1;
+            else if (x > 0 && x <= s_j_) return 1.0 / g(x) - 1;
             else return 0;
         }
 
@@ -87,7 +63,7 @@ namespace xry_mesh {
          * @return
          */
         inline float g(float x) const {
-            return 1.0f / std::pow(s_j_, 3) * std::pow(x, 3)
+            return 1.0 / std::pow(s_j_, 3) * std::pow(x, 3)
                    - 3.0 / std::pow(s_j_, 2) * std::pow(x, 2)
                    + 3.0 / s_j_ * x;
         }
@@ -97,7 +73,7 @@ namespace xry_mesh {
         * @return
         */
         inline float gPrime(float x) const {
-            return 3.0f / std::pow(s_j_, 3) * std::pow(x, 2)
+            return 3.0 / std::pow(s_j_, 3) * std::pow(x, 2)
                    - 6.0 / std::pow(s_j_, 2) * x
                    + 3.0 / s_j_;
         }
@@ -135,7 +111,43 @@ namespace xry_mesh {
             return areas_[f_idx] - epsilon_;
         };
 
+
+    private:
+        float s_j_{1.0};
+        float epsilon_;
+        Eigen::Matrix2Xf V_;
+        Eigen::Matrix3Xi F_;
+        Eigen::Matrix<int, 6, Eigen::Dynamic> triangle_vertex_idx_;
+        std::vector<float> weight1, weight2;
+        std::vector<float> areas_;
+
+        /**
+         * 计算每个三角形三个顶点对应求解矩阵的位置
+         */
+        void computeVertexIdxMatrix();
+
+        /**
+         * 计算epsilon，具体见论文
+         */
+        void computeEpsilon();
+
+        /**
+         * 计算其中一个权值，见论文
+         */
+        void computeW1();
+
+        /**
+         * 计算其中一个权值，见论文
+         */
+        void computeW2();
+
+        /**
+         * 更新三角形面积
+         */
+        void updateAreas();
+
     };
+
 } // namespace xry_mesh
 
 

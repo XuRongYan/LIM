@@ -3,6 +3,7 @@
 //
 
 #include "ARAPEnergy.h"
+#include <fstream>
 #include "../utils/EigenUtils.h"
 
 namespace xry_mesh {
@@ -31,6 +32,7 @@ namespace xry_mesh {
             }
             error += ideal_areas_[i] * (m * inv_deltas_[i] - vec_R_[i]).squaredNorm();
         }
+
         return error;
     }
 

@@ -8,6 +8,7 @@
 #include "../energy/ARAPEnergy.h"
 #include "../utils/SurfaceMeshUtils.h"
 #include "../utils/EigenUtils.h"
+#include "../utils/FileIOUtils.h"
 
 class ARAPEnergyTest : public ::testing::Test {
 protected:
@@ -18,7 +19,7 @@ protected:
         Eigen::MatrixX2f v2d = V.transpose().block(0, 0, V.cols(), 2);
         Eigen::Matrix3Xi F = xry_mesh::getTopoMatrix(mesh_);
         Eigen::VectorXf x = xry_mesh::vt2v<float>(v2d);
-        xry_mesh::computeAreas<float>(mesh_);
+        xry_mesh::computeAreasDet<float>(mesh_);
         std::vector<float> areas = xry_mesh::faceProperty2StdVector<float>(mesh_, "f:areas");
         arapEnergy = xry_mesh::ARAPEnergy(x, v2d.transpose(), F, areas);
         arapEnergy.init();
@@ -47,4 +48,12 @@ TEST_F(ARAPEnergyTest, valueTest) {
     // TODO 完善测试
     float val = arapEnergy.value();
     ASSERT_FLOAT_EQ(val, 0);
+}
+
+TEST_F(ARAPEnergyTest, numericalJacobianTest) {
+	Eigen::VectorXf J = arapEnergy.jacobian();
+	Eigen::VectorXf J_num = arapEnergy.numericalJacobian(1e-6);
+	const float err = (J - J_num).squaredNorm();
+	dbg(err);
+	ASSERT_TRUE(err < 1e-5);
 }

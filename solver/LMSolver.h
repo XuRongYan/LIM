@@ -4,6 +4,7 @@
 
 #ifndef LIM_LMSOLVER_H
 #define LIM_LMSOLVER_H
+
 #include <Eigen/Dense>
 #include <Eigen/Sparse>
 
@@ -115,6 +116,9 @@ private:
     float lineSearchMu(float mu_i);
 
     float computeError();
+
+    void compareNumerical(const Eigen::VectorXf &x,
+                          const Eigen::VectorXf &x_i);
 
 
 };

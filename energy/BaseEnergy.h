@@ -29,6 +29,12 @@ namespace xry_mesh {
 
         virtual Eigen::SparseMatrix<float> hessian() const = 0;
 
+		virtual /**
+         * 数值方法计算梯度矩阵
+         * @return
+         */
+        Eigen::VectorXf numericalJacobian(float esp = 1e-4);
+
         virtual void update(const Eigen::VectorXf &x);
 
         const Eigen::VectorXf &getX() const;
