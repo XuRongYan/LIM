@@ -85,7 +85,9 @@ public:
 
 private:
     float mu_max_{1.0};
+    float mu_min_{1e-8};
     float sigma_max_{1.0};
+    float sigma_min_{1e-8};
     float alpha_{1e16};
     float beta_{0.1};
     float s_j_{1.0};
