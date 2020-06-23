@@ -53,7 +53,7 @@ namespace xry_mesh {
     private:
         std::vector<std::pair<int, Eigen::VectorXf>> pos_constrains_;
         size_t dim = 2;
-        bool enable_ti = false;
+        bool enable_ti = true;
         float mu_ = 0;
 
         /**

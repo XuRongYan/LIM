@@ -82,14 +82,15 @@ namespace xry_mesh {
 	}
 
 	Eigen::VectorXf LimEnergy::numericalJacobian(float esp) {
-		Eigen::VectorXf res(x_.size());
-		res.setZero();
-		res += arap_energy_.numericalJacobian(esp);
-		res += alpha_ * pos_energy_.numericalJacobian(esp);
-		if (enable_barrier_func_) {
-			res += beta_ * barrier_energy_.numericalJacobian(esp);
-		}
-		return res;
+		return BaseEnergy::numericalJacobian(esp);
+//		Eigen::VectorXf res(x_.size());
+//		res.setZero();
+//		res += arap_energy_.numericalJacobian(esp);
+//		res += alpha_ * pos_energy_.numericalJacobian(esp);
+//		if (enable_barrier_func_) {
+//			res += beta_ * barrier_energy_.numericalJacobian(esp);
+//		}
+//		return res;
 	}
 
 	Eigen::SparseMatrix<float> LimEnergy::hessian() const {

@@ -30,8 +30,8 @@ protected:
 TEST_F(LimEnergyTest, numericalJacobianTest) {
 	Eigen::VectorXf J = limEnergy.jacobian();
 	Eigen::VectorXf J_num = limEnergy.numericalJacobian(1e-4);
-	dbg(J);
-	dbg(J_num);
+	//dbg(J);
+	//dbg(J_num);
 	const float err = (J - J_num).squaredNorm();
 	dbg(err);
 	EXPECT_TRUE(err < 1e-2);
@@ -51,7 +51,7 @@ TEST_F(LimEnergyTest, paraNumericalJacobianTest) {
 	limEnergy.setBeta(1);
 	limEnergy.setEnableBarrierFunc(false);
 	Eigen::VectorXf J = limEnergy.jacobian();
-	Eigen::VectorXf J_num = limEnergy.numericalJacobian(1e-4);
+	Eigen::VectorXf J_num = limEnergy.numericalJacobian(1e-6);
 	const float err = (J - J_num).squaredNorm();
 	dbg(err);
 	EXPECT_TRUE(err < 1e-2);
