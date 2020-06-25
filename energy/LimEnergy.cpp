@@ -68,6 +68,7 @@ namespace xry_mesh {
 		if (enable_update_alpha_) {
 			computeAlpha();
 		}
+
 	}
 
 	Eigen::VectorXf LimEnergy::jacobian() const {

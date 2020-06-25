@@ -55,7 +55,23 @@ public:
 
     void setSigma(float sigma);
 
-    float getR() const;
+	float getMuMin() const;
+
+	void setMuMin(float muMin);
+
+	float getMuCurr() const;
+
+	void setMuCurr(float muCurr);
+
+	float getSigmaMin() const;
+
+	void setSigmaMin(float sigmaMin);
+
+	float getSigmaCurr() const;
+
+	void setSigmaCurr(float sigmaCurr);
+
+	float getR() const;
 
     void setR(float r);
 
@@ -86,8 +102,10 @@ public:
 private:
     float mu_max_{1.0};
     float mu_min_{1e-8};
+    float mu_curr_{1.0};
     float sigma_max_{1.0};
     float sigma_min_{1e-8};
+	float sigma_curr_{1.0};
     float alpha_{1e16};
     float beta_{0.1};
     float s_j_{1.0};

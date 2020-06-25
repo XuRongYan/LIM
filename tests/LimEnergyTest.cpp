@@ -27,6 +27,12 @@ protected:
 	xry_mesh::LimEnergy limEnergy;
 };
 
+TEST_F(LimEnergyTest, valueTest) {
+	float val = limEnergy.value();
+	float val_x = limEnergy.value(limEnergy.getX());
+	ASSERT_FLOAT_EQ(val, val_x);
+}
+
 TEST_F(LimEnergyTest, numericalJacobianTest) {
 	Eigen::VectorXf J = limEnergy.jacobian();
 	Eigen::VectorXf J_num = limEnergy.numericalJacobian(1e-4);

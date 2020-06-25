@@ -14,12 +14,12 @@ class PosEnergyTest : public ::testing::Test {
 protected:
     void SetUp() override {
         Test::SetUp();
-        Surface_Mesh::read_obj(mesh_, "plane_2d_2_2.obj");
+        Surface_Mesh::read_obj(mesh_, "plane_2d_4_4.obj");
         Eigen::Matrix3Xf V = xry_mesh::getGeometryMatrix<float>(mesh_);
         Eigen::MatrixX2f v2d = V.transpose().block(0, 0, V.cols(), 2);
         Eigen::VectorXf x = xry_mesh::vt2v<float>(v2d);
         std::vector<std::pair<int, Eigen::VectorXf>> pos_constrains
-                = xry_mesh::readPosFile<float>("pos_2_2.pts", 2);
+                = xry_mesh::readPosFile<float>("pos_4_4.pts", 2);
         posEnergy = xry_mesh::PosEnergy(x, 2, pos_constrains, 0);
         posEnergy.setEnableTi(true);
         posEnergy.init();
@@ -44,4 +44,10 @@ TEST_F(PosEnergyTest, numericalJacobianTest) {
 	const float err = (J - J_num).squaredNorm();
 	dbg(err);
 	ASSERT_TRUE(err < 1e-5);
+}
+TEST_F(PosEnergyTest, tiTest) {
+	ASSERT_FLOAT_EQ(posEnergy.getMu(), 0);
+	float val = posEnergy.value();
+	float val_x = posEnergy.value(posEnergy.getX());
+	ASSERT_FLOAT_EQ(val, val_x);
 }

@@ -53,7 +53,7 @@ namespace xry_mesh {
     private:
         std::vector<std::pair<int, Eigen::VectorXf>> pos_constrains_;
         size_t dim = 2;
-        bool enable_ti = true;
+        bool enable_ti = false;
         float mu_ = 0;
 
         /**
@@ -70,7 +70,7 @@ namespace xry_mesh {
 
         Eigen::VectorXf computeTi(const Eigen::VectorXf &d_i, const Eigen::VectorXf &x);
 
-        Eigen::VectorXf computeB(const Eigen::VectorXf &x);
+
 
     };
 } // namespace xry_mesh
